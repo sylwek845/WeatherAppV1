@@ -38,9 +38,40 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+
+        for(int i =0;i<3;i++)
+        {
+            WeatherData[] weatherDatas = testCities();
+            LatLng tmp = new LatLng(weatherDatas[i].getCoordLat(),weatherDatas[i].getCoordLon());
+            mMap.addMarker(new MarkerOptions().position(tmp).title("Marker in "+weatherDatas[i].getCity() ));
+
+        }
+
+
+
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng scotland = new LatLng(57.27, -3.92);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(scotland));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom((scotland), 6.5f));
+    }
+
+    /**
+     * This is a test method which created city objects with weather
+     * @return Return x number of cities as WeatherData array
+     */
+    private WeatherData[] testCities()
+    {
+        String[] Name = {"Glasgow", "Aberdeen", "Edinburgh"};
+        double[] Lat = {55.87, 57.14, 55.95};
+        double[] Lon = {-4.26, -2.1,-3.2};
+        WeatherData[] weatherData = new WeatherData[3];
+        for(int i = 0; i < 3;i++)
+        {
+            weatherData[i] = new WeatherData();
+            weatherData[i].setCity(Name[i]);
+            weatherData[i].setCoordLat(Lat[i]);
+            weatherData[i].setCoordLon(Lon[i]);
+        }
+        return weatherData;
     }
 }
