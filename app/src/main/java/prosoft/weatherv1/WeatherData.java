@@ -1,5 +1,7 @@
 package prosoft.weatherv1;
 
+import android.media.Image;
+
 /**
  * Created by Sylwester Zalewski on 17/11/2015.
  * This class stores weather data about cities.
@@ -22,6 +24,7 @@ public class WeatherData {
     private String sysSunset;
     private String ID;
     private String City;
+    private int image;
 
     ///////////////////////////////////////////////////////
 
@@ -141,4 +144,11 @@ public class WeatherData {
         City = city;
     }
 
+    public int getImage() {
+        return image;
+    }
+
+    public void setImage(int image) {
+        this.image = image;
+    }
 }

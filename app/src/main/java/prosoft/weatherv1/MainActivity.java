@@ -1,18 +1,27 @@
 package prosoft.weatherv1;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
+    private Marker[] Markers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +31,38 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
     }
 
+    private MarkerOptions DrawMarker(WeatherData weatherData)
+    {
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        Bitmap bmp = Bitmap.createBitmap(80, 80, conf);
+        Canvas canvas1 = new Canvas(bmp);
+
+// paint defines the text color,
+// stroke width, size
+        Paint color = new Paint();
+        color.setTextSize(20);
+        color.setColor(Color.BLACK);
+        LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon());
+//modify canvas
+        canvas1.drawBitmap(BitmapFactory.decodeResource(getResources(),
+                weatherData.getImage()), 0,0, color);
+        canvas1.drawText(weatherData.getCity(), 30, 40, color);
+
+//add marker to Map
+        MarkerOptions marker = new MarkerOptions().position(tmp)
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                        // Specifies the anchor to be at a particular point in the marker image.
+                .anchor(0.5f, 1);
+
+
+
+
+
+        return marker;
+    }
 
     /**
      * Manipulates the map once available.
@@ -37,13 +76,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        mMap.setOnMarkerClickListener(this);
+        Markers = new Marker[3];
 
         for(int i =0;i<3;i++)
         {
             WeatherData[] weatherDatas = testCities();
             LatLng tmp = new LatLng(weatherDatas[i].getCoordLat(),weatherDatas[i].getCoordLon());
-            mMap.addMarker(new MarkerOptions().position(tmp).title("Marker in "+weatherDatas[i].getCity() ));
+           // mMap.addMarker(new MarkerOptions().position(tmp).title("Marker in "+weatherDatas[i].getCity() ));
+            Markers[i] = mMap.addMarker(DrawMarker(weatherDatas[i]));
+          //  mMap.addMarker(DrawMarker(weatherDatas[i]));
 
         }
 
@@ -71,7 +113,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             weatherData[i].setCity(Name[i]);
             weatherData[i].setCoordLat(Lat[i]);
             weatherData[i].setCoordLon(Lon[i]);
+            weatherData[i].setImage(R.drawable.a10d);
         }
         return weatherData;
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (marker.equals(Markers[0]))
+        {
+            Toast.makeText(getApplicationContext(), "Glasgow", Toast.LENGTH_SHORT).show();
+        }
+        else  if (marker.equals(Markers[1]))
+        {
+            Toast.makeText(getApplicationContext(), "Aberdeen", Toast.LENGTH_SHORT).show();
+        }
+        else  if (marker.equals(Markers[2]))
+        {
+            Toast.makeText(getApplicationContext(), "Edinburgh", Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 }
