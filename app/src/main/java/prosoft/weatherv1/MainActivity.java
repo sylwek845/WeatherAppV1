@@ -4,9 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,21 +41,32 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private MarkerOptions DrawMarker(WeatherData weatherData)
     {
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        Bitmap bmp = Bitmap.createBitmap(80, 80, conf);
+        Bitmap bmp = Bitmap.createBitmap(100, 100, conf);
         Canvas canvas1 = new Canvas(bmp);
 
-// paint defines the text color,
-// stroke width, size
+    // paint defines the text color,
+    // stroke width, size
         Paint color = new Paint();
+        Paint colorwhite = new Paint();
+        colorwhite.setColor(Color.WHITE);
         color.setTextSize(20);
         color.setColor(Color.BLACK);
+        Paint temperatureColor = new Paint();
+        temperatureColor.setTextSize(40);
+        temperatureColor.setColor(Color.BLACK);
+        Matrix matrixImage = new Matrix();
+        matrixImage.setScale((float)0.5,(float)0.5);
+        matrixImage.postTranslate(50,50);
         LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon());
-//modify canvas
+    //modify canvas
+        canvas1.drawRect(0, 0, 100, 100, color);
+        canvas1.drawRect(3, 3, 97, 97, colorwhite);
         canvas1.drawBitmap(BitmapFactory.decodeResource(getResources(),
-                weatherData.getImage()), 0,0, color);
-        canvas1.drawText(weatherData.getCity(), 30, 40, color);
+                weatherData.getImage()),matrixImage, color);
+        canvas1.drawText(weatherData.getCity(), 5, 25, color);
+        canvas1.drawText((weatherData.getMainTemp() + "C"), 5, 75, color);
 
-//add marker to Map
+    //add marker to Map
         MarkerOptions marker = new MarkerOptions().position(tmp)
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                         // Specifies the anchor to be at a particular point in the marker image.
@@ -63,6 +78,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         return marker;
     }
+
 
     /**
      * Manipulates the map once available.
@@ -107,6 +123,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         double[] Lat = {55.87, 57.14, 55.95};
         double[] Lon = {-4.26, -2.1,-3.2};
         WeatherData[] weatherData = new WeatherData[3];
+        double[] maintemp = {4.26, -2.1, 9};
         for(int i = 0; i < 3;i++)
         {
             weatherData[i] = new WeatherData();
@@ -114,6 +131,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             weatherData[i].setCoordLat(Lat[i]);
             weatherData[i].setCoordLon(Lon[i]);
             weatherData[i].setImage(R.drawable.a10d);
+            weatherData[i].setMainTemp(maintemp[i]);
         }
         return weatherData;
     }
