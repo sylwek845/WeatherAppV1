@@ -1,5 +1,6 @@
 package prosoft.weatherv1;
 
+import android.graphics.Bitmap;
 import android.media.Image;
 
 /**
@@ -24,7 +25,8 @@ public class WeatherData {
     private String sysSunset;
     private String ID;
     private String City;
-    private int image;
+    private String Icon;
+    private Bitmap image;
 
     ///////////////////////////////////////////////////////
 
@@ -144,11 +146,19 @@ public class WeatherData {
         City = city;
     }
 
-    public int getImage() {
+    public Bitmap getImage() {
         return image;
     }
 
-    public void setImage(int image) {
+    public void setImage(Bitmap image) {
         this.image = image;
+    }
+
+    public String getIcon() {
+        return Icon;
+    }
+
+    public void setIcon(String icon) {
+        Icon = icon;
     }
 }

@@ -1,9 +1,16 @@
 package prosoft.weatherv1;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -71,5 +78,33 @@ public class Parser {
         }
         return result;
     }
+    public static Bitmap GetImage(WeatherData weatherData) throws IOException {
+        /**         URL url = new URL("http://openweathermap.org/img/w/" + weatherData.getID());
+         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+         conn.setDoInput(true);
+         conn.connect();
+         InputStream is = conn.getInputStream();
+         return BitmapFactory.decodeStream(is);
+         **/
+        try {
+            URL url = new URL("http://openweathermap.org/img/w/" + weatherData.getIcon());
+            HttpURLConnection connection = (HttpURLConnection) url
+                    .openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            Log.i("download img","I think is downloaded");
+            return myBitmap;
 
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("getBmpFromUrl error: ", e.getMessage().toString());
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("getBmpFromUrl error: ", e.getMessage().toString());
+            return null;
+        }
+    }
 }
