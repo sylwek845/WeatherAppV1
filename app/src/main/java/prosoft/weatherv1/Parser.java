@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,6 +18,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 
 /**
@@ -77,6 +79,61 @@ public class Parser {
         } catch (Exception e) {
         }
         return result;
+    }
+    public void ParseWeather(String Feed)
+    {
+        final String TAG_COORDS = "coord";
+        final String TAG_LON = "coord";
+        final String TAG_LAT = "coord";
+        final String TAG_WEATHER = "coord";
+        final String TAG_WEATHER_ID = "coord";
+        final String TAG_WEATHER_MAIN = "coord";
+        final String TAG_WEATHER_DESCRIPTION = "coord";
+        final String TAG_WEATHER_ICON = "coord";
+        final String TAG_MAIN_TEMP = "coord";
+        final String TAG_WEED_SPEED = "coord";
+
+        /**
+        if (Feed != null) {
+            try {
+                JSONObject jsonObj = new JSONObject(jsonStr);
+
+                // Getting JSON Array node
+                contacts = jsonObj.getJSONArray(TAG_CONTACTS);
+
+                // looping through All Contacts
+                for (int i = 0; i < contacts.length(); i++) {
+                    JSONObject c = contacts.getJSONObject(i);
+
+                    String id = c.getString(TAG_ID);
+                    String name = c.getString(TAG_NAME);
+                    String email = c.getString(TAG_EMAIL);
+                    String address = c.getString(TAG_ADDRESS);
+                    String gender = c.getString(TAG_GENDER);
+
+                    // Phone node is JSON Object
+                    JSONObject phone = c.getJSONObject(TAG_PHONE);
+                    String mobile = phone.getString(TAG_PHONE_MOBILE);
+                    String home = phone.getString(TAG_PHONE_HOME);
+                    String office = phone.getString(TAG_PHONE_OFFICE);
+
+                    // tmp hashmap for single contact
+                    HashMap<String, String> contact = new HashMap<String, String>();
+
+                    // adding each child node to HashMap key => value
+                    contact.put(TAG_ID, id);
+                    contact.put(TAG_NAME, name);
+                    contact.put(TAG_EMAIL, email);
+                    contact.put(TAG_PHONE_MOBILE, mobile);
+
+                    // adding contact to contact list
+                    contactList.add(contact);
+
+                }
+            }
+            catch (Exception e){}
+        }
+        **/
     }
     public static Bitmap GetImage(WeatherData weatherData) throws IOException {
         /**         URL url = new URL("http://openweathermap.org/img/w/" + weatherData.getID());
