@@ -34,7 +34,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private Marker[] Markers;
-    WeatherData[] weatherDatas;
+    private WeatherData[] weatherDatas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         temperatureColor.setTextSize(40);
         temperatureColor.setColor(Color.BLACK);
         Matrix matrixImage = new Matrix();
-        matrixImage.setScale((float)0.5,(float)0.5);
+        matrixImage.setScale((float)1,(float)1);
         matrixImage.postTranslate(50,50);
         LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon());
     //modify canvas
@@ -90,11 +90,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return marker;
     }
 
-    private class LoadingTask extends AsyncTask<String, Integer, String> {
+    private class LoadingTask extends AsyncTask<GoogleMap, Integer, String> {
         ProgressDialog progress = new ProgressDialog(MainActivity.this);
-        protected String doInBackground(String... urls) {
+        GoogleMap googleMap;
+        protected String doInBackground(GoogleMap... maps) {
             for (int i = 0; i < 3; i++) {
                 try {
+                    googleMap = maps[0];
                     Bitmap tmp =Parser.GetImage(weatherDatas[i]);
                     if(tmp == null)
                     {
@@ -114,18 +116,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             progress.setProgress(values[0]);
         }
         protected void onPostExecute(String results) {
-        //    try {
-               /** if (progress.isShowing()) {
+            try {
+                if (progress.isShowing()) {
                     // To dismiss the dialog
                     progress.dismiss();
 
                 }
+                AddMapAndMarkers(googleMap);
                 //when Task Complete
+            } catch (Exception e) {
             }
-            catch (Exception e){}
-                **/
-                myHandler.sendEmptyMessage(0);
-           // }
         }
 
         @Override
@@ -139,20 +139,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
-    Handler myHandler = new Handler() {
 
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    // calling to this function from other pleaces
-                    // The notice call method of doing things
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -165,9 +152,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         weatherDatas = testCities();
-        new LoadingTask().execute();
+        new LoadingTask().execute(googleMap);
 
-        AddMapAndMarkers(googleMap);
+
 
     }
     private void AddMapAndMarkers(GoogleMap googleMap)
