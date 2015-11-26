@@ -9,6 +9,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -29,13 +31,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private Marker[] Markers;
     private WeatherData[] weatherDatas;
-
+    private String[] Name = {"Glasgow", "Aberdeen", "Edinburgh","Dundee","Perth","Elgin","Fort William","Oban","Wick","Tongue"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,10 +98,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ProgressDialog progress = new ProgressDialog(MainActivity.this);
         GoogleMap googleMap;
         protected String doInBackground(GoogleMap... maps) {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < weatherDatas.length; i++) {
                 try {
                     googleMap = maps[0];
-                    Bitmap tmp =Parser.GetImage(weatherDatas[i]);
+                    Parser parser = new Parser();
+                    weatherDatas[i] = parser.ParseWeather(parser.GetSource(parser.CreateLatLongURL(String.valueOf(weatherDatas[i].getCoordLat()),String.valueOf(weatherDatas[i].getCoordLon()))),weatherDatas[i]); //get city Lat,get city Lon -> create URL -> Get Data -> Parse Data -> replace old with new object
+                    Bitmap tmp =parser.GetImage(weatherDatas[i]); // get icon
                     if(tmp == null)
                     {
                         Log.e("Bitmap Empty","Downloaded Bitmap is empty");
@@ -134,7 +140,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             progress.setTitle("Loading");
             progress.setMessage("Please Wait..");
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setMax(3);
+            progress.setMax(weatherDatas.length);
             progress.show();
         }
 
@@ -151,19 +157,37 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        weatherDatas = testCities();
+
+        getLatLonFromGoogle();
         new LoadingTask().execute(googleMap);
 
 
 
     }
+    private void getLatLonFromGoogle()
+    {
+        weatherDatas = new WeatherData[Name.length];
+        for(int i = 0; i < Name.length;i++) {
+            try {
+                weatherDatas[i] = new WeatherData();
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                List<Address> addresses;
+                addresses = geocoder.getFromLocationName(Name[i], 1);
+                if (addresses.size() > 0) {
+                    weatherDatas[i].setCoordLat(addresses.get(0).getLatitude());
+                    weatherDatas[i].setCoordLon(addresses.get(0).getLongitude());
+                }
+            }
+            catch (Exception e) {}
+        }
+    }
     private void AddMapAndMarkers(GoogleMap googleMap)
     {
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
-        Markers = new Marker[3];
+        Markers = new Marker[weatherDatas.length];
 
-        for(int i =0;i<3;i++)
+        for(int i =0;i<Markers.length;i++)
         {
 
             LatLng tmp = new LatLng(weatherDatas[i].getCoordLat(),weatherDatas[i].getCoordLon());
@@ -186,24 +210,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      */
     private WeatherData[] testCities()
     {
-        String[] Name = {"Glasgow", "Aberdeen", "Edinburgh"};
-        double[] Lat = {55.87, 57.14, 55.95};
-        double[] Lon = {-4.26, -2.1,-3.2};
-        WeatherData[] weatherData = new WeatherData[3];
-        double[] maintemp = {4.26, -2.1, 9};
-        for(int i = 0; i < 3;i++)
+        String[] Name = {"Glasgow", "Aberdeen", "Edinburgh","Dundee","Perth","Elgin","Fort William","Oban"};
+       // double[] Lat = {55.87, 57.14, 55.95};
+     //   double[] Lon = {-4.26, -2.1,-3.2};
+        WeatherData[] weatherData = new WeatherData[8];
+     //   double[] maintemp = {4.26, -2.1, 9};
+        for(int i = 0; i < Name.length;i++)
         {
             weatherData[i] = new WeatherData();
             weatherData[i].setCity(Name[i]);
-            weatherData[i].setCoordLat(Lat[i]);
-            weatherData[i].setCoordLon(Lon[i]);
+     //       weatherData[i].setCoordLat(Lat[i]);
+     //       weatherData[i].setCoordLon(Lon[i]);
             //weatherData[i].setImage(BitmapFactory.decodeResource(getResources(), R.drawable.a10d));
 
-            weatherData[i].setMainTemp(maintemp[i]);
+      //      weatherData[i].setMainTemp(maintemp[i]);
         }
-        weatherData[0].setIcon("10d.png");
-        weatherData[1].setIcon("11d.png");
-        weatherData[2].setIcon("50n.png");
+     //   weatherData[0].setIcon("10d.png");
+     //   weatherData[1].setIcon("11d.png");
+      //  weatherData[2].setIcon("50n.png");
         return weatherData;
     }
 

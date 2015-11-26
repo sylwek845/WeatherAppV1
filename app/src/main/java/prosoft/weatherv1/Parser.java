@@ -18,6 +18,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 
@@ -39,7 +40,19 @@ public class Parser {
      */
     public String CreateCityURL(String CityName)
     {
-        return "@http://api.openweathermap.org/data/2.5/weather?q="+ CityName +"&units=metric&appid=2de143494c0b295cca9337e1e96b00e0";
+        CityName = CityName.replaceAll(" ","");
+        return "http://api.openweathermap.org/data/2.5/weather?q="+ CityName +"UK&units=metric&appid=80e6f18543ffb6265a664bad6d910eda" ;
+    }
+    /**
+     This method build URL with Lat and Long
+     @param Lat - City Latitude
+     @param Long - City Longitude
+     @return the value returned by the method - String with URL
+     */
+    public String CreateLatLongURL(String Lat,String Long)
+    {
+
+        return "http://api.openweathermap.org/data/2.5/weather?lat="+Lat+"&lon="+Long+"&units=metric&appid=80e6f18543ffb6265a664bad6d910eda";
     }
     /**
      This method build URL with city name + unit eg. metric
@@ -51,10 +64,11 @@ public class Parser {
     {
         if(unit.isEmpty())
             unit = "metric"; // default metric if provided is empty
-        return "@http://api.openweathermap.org/data/2.5/weather?q="+ CityName +"&" +unit+"=metric&appid=2de143494c0b295cca9337e1e96b00e0";
+        return "http://api.openweathermap.org/data/2.5/weather?q="+ CityName +"&" +unit+"=metric&appid=80e6f18543ffb6265a664bad6d910eda";
     }
     public String GetSource(String url)
     {
+
         String result = "";// empty string
         try {
             try {
@@ -79,70 +93,107 @@ public class Parser {
         } catch (Exception e) {
         }
         return result;
+
     }
-    public void ParseWeather(String Feed)
+    public WeatherData ParseWeather(String feed,WeatherData weatherData)
     {
-        final String TAG_COORDS = "coord";
-        final String TAG_LON = "coord";
-        final String TAG_LAT = "coord";
-        final String TAG_WEATHER = "coord";
-        final String TAG_WEATHER_ID = "coord";
-        final String TAG_WEATHER_MAIN = "coord";
-        final String TAG_WEATHER_DESCRIPTION = "coord";
-        final String TAG_WEATHER_ICON = "coord";
-        final String TAG_MAIN_TEMP = "coord";
-        final String TAG_WEED_SPEED = "coord";
+        final String TAG_COORD = "coord";
+        final String TAG_LON = "lon";
+        final String TAG_LAT = "lat";
+        final String TAG_WEATHER = "weather";
+        final String TAG_WEATHER_ID = "id";
+        final String TAG_WEATHER_MAIN = "main";
+        final String TAG_WEATHER_DESCRIPTION = "description";
+        final String TAG_WEATHER_ICON = "icon";
+        final String TAG_MAIN = "main";
+        final String TAG_MAIN_TEMP = "temp";
+        final String TAG_WIND = "wind";
+        final String TAG_WIND_SPEED = "speed";
+        final String TAG_CLOUDS = "clouds";
+        final String TAG_CLOUDS_ALL = "all";
+        final String TAG_RAIN = "rain";
+        final String TAG_RAIN_3H = "3h";
+        final String TAG_SNOW = "snow";
+        final String TAG_SNOW_3H = "3h";
+        final String TAG_SYS= "sys";
+        final String TAG_SYS_SUNRISE= "sunrise";
+        final String TAG_SYS_SUNSET= "sunset";
+        final String TAG_ID= "id";
+        final String TAG_NAME= "name";
 
-        /**
-        if (Feed != null) {
+
+
+        if (feed != null) { // if string empty skip this step
             try {
-                JSONObject jsonObj = new JSONObject(jsonStr);
+                JSONObject jsonObj = new JSONObject(feed); //Create JSON Object instance with weather data
 
-                // Getting JSON Array node
-                contacts = jsonObj.getJSONArray(TAG_CONTACTS);
-
-                // looping through All Contacts
-                for (int i = 0; i < contacts.length(); i++) {
-                    JSONObject c = contacts.getJSONObject(i);
-
-                    String id = c.getString(TAG_ID);
-                    String name = c.getString(TAG_NAME);
-                    String email = c.getString(TAG_EMAIL);
-                    String address = c.getString(TAG_ADDRESS);
-                    String gender = c.getString(TAG_GENDER);
-
-                    // Phone node is JSON Object
-                    JSONObject phone = c.getJSONObject(TAG_PHONE);
-                    String mobile = phone.getString(TAG_PHONE_MOBILE);
-                    String home = phone.getString(TAG_PHONE_HOME);
-                    String office = phone.getString(TAG_PHONE_OFFICE);
-
-                    // tmp hashmap for single contact
-                    HashMap<String, String> contact = new HashMap<String, String>();
-
-                    // adding each child node to HashMap key => value
-                    contact.put(TAG_ID, id);
-                    contact.put(TAG_NAME, name);
-                    contact.put(TAG_EMAIL, email);
-                    contact.put(TAG_PHONE_MOBILE, mobile);
-
-                    // adding contact to contact list
-                    contactList.add(contact);
-
+                // Getting JSON Object Coord
+               // JSONObject coord = jsonObj.getJSONObject(TAG_COORD);
+              //  weatherData.setCoordLat(Double.parseDouble(coord.getString(TAG_LAT)));
+              //  weatherData.setCoordLon(Double.parseDouble(coord.getString(TAG_LON)));
+                // Getting JSON Array Weather
+                JSONArray weatherArr = jsonObj.getJSONArray(TAG_WEATHER);// Get the array from the string
+                JSONObject weatherObj = weatherArr.getJSONObject(0); //Get First Element (should exist only one)!No need for Loop
+                weatherData.setWeatherID(weatherObj.getString(TAG_WEATHER_ID));
+                weatherData.setWeatherMain(weatherObj.getString(TAG_WEATHER_MAIN));
+                weatherData.setWeatherDesc(weatherObj.getString(TAG_WEATHER_DESCRIPTION));
+                weatherData.setIcon(weatherObj.getString(TAG_WEATHER_ICON)+".png");//.png required to download the icon (not provided in the data )
+                //next Object
+                JSONObject main =jsonObj.getJSONObject(TAG_MAIN);
+                weatherData.setMainTemp(Double.parseDouble(main.getString(TAG_MAIN_TEMP)));
+                /**
+                 * Some Object not always exist which throw exception therefor each data need own try-catch statement
+                **/
+                //next
+                try {
+                    JSONObject wind = jsonObj.getJSONObject(TAG_WIND);
+                    weatherData.setWindSpeed(wind.getString(TAG_WIND_SPEED));
                 }
+                catch (Exception e){}
+                //next
+                try {
+                    JSONObject clouds = jsonObj.getJSONObject(TAG_CLOUDS);
+                    weatherData.setClouds(clouds.getString(TAG_CLOUDS_ALL));
+                }
+                catch (Exception e){}
+                //next
+                try {
+                JSONObject rain =jsonObj.getJSONObject(TAG_RAIN);
+                weatherData.setRain3h(rain.getString(TAG_RAIN_3H));
+                }
+                catch (Exception e){}
+                //next
+                try {
+                JSONObject snow =jsonObj.getJSONObject(TAG_SNOW);
+                weatherData.setSnow3h(snow.getString(TAG_SNOW_3H));
+                }
+                catch (Exception e){}
+                //next
+                try {
+                JSONObject sys =jsonObj.getJSONObject(TAG_SYS);
+                weatherData.setSysSunrise(sys.getString(TAG_SYS_SUNRISE));
+                weatherData.setSysSunset(sys.getString(TAG_SYS_SUNSET));
+                }
+                catch (Exception e){}
+                try {
+                //next, ID does not have a object
+                weatherData.setID(jsonObj.getString(TAG_ID));
+                }
+                catch (Exception e){}
+                try {
+                    //next, name also does not have a object
+                    weatherData.setCity(jsonObj.getString(TAG_NAME));
+                }
+                catch (Exception e){}
+                return weatherData;
             }
-            catch (Exception e){}
+            catch (Exception e){return null;}
         }
-        **/
+        else
+            return null;
     }
-    public static Bitmap GetImage(WeatherData weatherData) throws IOException {
-        /**         URL url = new URL("http://openweathermap.org/img/w/" + weatherData.getID());
-         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-         conn.setDoInput(true);
-         conn.connect();
-         InputStream is = conn.getInputStream();
-         return BitmapFactory.decodeStream(is);
-         **/
+    public Bitmap GetImage(WeatherData weatherData) throws IOException {
+
         try {
             URL url = new URL("http://openweathermap.org/img/w/" + weatherData.getIcon());
             HttpURLConnection connection = (HttpURLConnection) url
