@@ -29,6 +29,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +43,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Marker[] Markers;
     private WeatherData[] weatherDatas;
-    private String[] Name = {"Glasgow", "Aberdeen", "Edinburgh","Dundee","Perth","Elgin","Fort William","Oban","Wick","Tongue"};
+    private String[] Name = {"Glasgow", "Aberdeen", "Edinburgh","Perth","Elgin","Fort William","Oban","Wick","Tongue"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,31 +58,33 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private MarkerOptions DrawMarker(WeatherData weatherData)
     {
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        Bitmap bmp = Bitmap.createBitmap(100, 100, conf);
+        Bitmap bmp = Bitmap.createBitmap(200, 100, conf);
         Canvas canvas1 = new Canvas(bmp);
 
-    // paint defines the text color,
+    // paint defines the text paintCity,
     // stroke width, size
-        Paint color = new Paint();
-        Paint colorwhite = new Paint();
-        colorwhite.setColor(Color.WHITE);
-        color.setTextSize(20);
-        color.setColor(Color.BLACK);
-        Paint temperatureColor = new Paint();
-        temperatureColor.setTextSize(40);
-        temperatureColor.setColor(Color.BLACK);
+        Paint paintCity = new Paint();
+        Paint paintTemp = new Paint();
+        paintTemp.setTextSize(30);
+        paintTemp.setStyle(Paint.Style.FILL);
+        paintTemp.setColor(Color.WHITE);
+        paintCity.setTextSize(30);
+        paintCity.setStyle(Paint.Style.FILL);
+        paintCity.setStrokeJoin(Paint.Join.BEVEL);
+        paintCity.setStrokeMiter(50);
+        paintCity.setColor(Color.WHITE);
         Matrix matrixImage = new Matrix();
-        matrixImage.setScale((float)1,(float)1);
-        matrixImage.postTranslate(50,50);
+        matrixImage.setScale((float)1.5,(float)1.5);
+        matrixImage.postTranslate(55,30);
         LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon());
     //modify canvas
 
-        canvas1.drawRect(0, 0, 100, 100, color);
-        canvas1.drawRect(3, 3, 97, 97, colorwhite);
+        //canvas1.drawRect(0, 0, 100, 100, paintCity);
+      //  canvas1.drawRect(3, 3, 97, 97, colorwhite);
         Bitmap bitmap =weatherData.getImage();
-        canvas1.drawBitmap(weatherData.getImage(), matrixImage, color);
-        canvas1.drawText(weatherData.getCity(), 5, 25, color);
-        canvas1.drawText((weatherData.getMainTemp() + "C"), 5, 75, color);
+        canvas1.drawBitmap(weatherData.getImage(), matrixImage, paintCity);
+        canvas1.drawText(weatherData.getCity(), 5, 25, paintCity);
+        canvas1.drawText(((int)weatherData.getMainTemp() + "°C"), 5, 65, paintTemp);
 
 
     //add marker to Map
@@ -159,6 +165,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
         getLatLonFromGoogle();
+        googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         new LoadingTask().execute(googleMap);
 
 
@@ -176,6 +183,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 if (addresses.size() > 0) {
                     weatherDatas[i].setCoordLat(addresses.get(0).getLatitude());
                     weatherDatas[i].setCoordLon(addresses.get(0).getLongitude());
+                    weatherDatas[i].setCity(Name[i]);
                 }
             }
             catch (Exception e) {}
@@ -184,6 +192,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private void AddMapAndMarkers(GoogleMap googleMap)
     {
         mMap = googleMap;
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+       // mMap.getUiSettings().setScrollGesturesEnabled(false);
+        mMap.getUiSettings().setRotateGesturesEnabled(false);
+
         mMap.setOnMarkerClickListener(this);
         Markers = new Marker[weatherDatas.length];
 
@@ -233,18 +245,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (marker.equals(Markers[0]))
+
+        for(int i = 0; i < Markers.length;i++)
         {
-            Toast.makeText(getApplicationContext(), "Glasgow", Toast.LENGTH_SHORT).show();
+            if (marker.equals(Markers[i]))
+            {
+                Toast.makeText(getApplicationContext(), weatherDatas[i].getCity(), Toast.LENGTH_SHORT).show();
+            }
         }
-        else  if (marker.equals(Markers[1]))
-        {
-            Toast.makeText(getApplicationContext(), "Aberdeen", Toast.LENGTH_SHORT).show();
-        }
-        else  if (marker.equals(Markers[2]))
-        {
-            Toast.makeText(getApplicationContext(), "Edinburgh", Toast.LENGTH_SHORT).show();
-        }
-        return false;
+        return true;
     }
 }

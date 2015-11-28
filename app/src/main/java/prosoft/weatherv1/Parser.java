@@ -142,7 +142,7 @@ public class Parser {
                 JSONObject main =jsonObj.getJSONObject(TAG_MAIN);
                 weatherData.setMainTemp(Double.parseDouble(main.getString(TAG_MAIN_TEMP)));
                 /**
-                 * Some Object not always exist which throw exception therefor each data need own try-catch statement
+                 * Some Objects not always exist which throw exception therefor each data need own try-catch statement
                 **/
                 //next
                 try {
@@ -180,11 +180,11 @@ public class Parser {
                 weatherData.setID(jsonObj.getString(TAG_ID));
                 }
                 catch (Exception e){}
-                try {
-                    //next, name also does not have a object
-                    weatherData.setCity(jsonObj.getString(TAG_NAME));
-                }
-                catch (Exception e){}
+//              try {
+//                    //next, name also does not have a object
+//                    weatherData.setCity(jsonObj.getString(TAG_NAME));
+//               }
+//                catch (Exception e){}
                 return weatherData;
             }
             catch (Exception e){return null;}
