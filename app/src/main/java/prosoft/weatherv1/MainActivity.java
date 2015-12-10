@@ -220,28 +220,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      * This is a test method which created city objects with weather
      * @return Return x number of cities as WeatherData array
      */
-    private WeatherData[] testCities()
-    {
-        String[] Name = {"Glasgow", "Aberdeen", "Edinburgh","Dundee","Perth","Elgin","Fort William","Oban"};
-       // double[] Lat = {55.87, 57.14, 55.95};
-     //   double[] Lon = {-4.26, -2.1,-3.2};
-        WeatherData[] weatherData = new WeatherData[8];
-     //   double[] maintemp = {4.26, -2.1, 9};
-        for(int i = 0; i < Name.length;i++)
-        {
-            weatherData[i] = new WeatherData();
-            weatherData[i].setCity(Name[i]);
-     //       weatherData[i].setCoordLat(Lat[i]);
-     //       weatherData[i].setCoordLon(Lon[i]);
-            //weatherData[i].setImage(BitmapFactory.decodeResource(getResources(), R.drawable.a10d));
-
-      //      weatherData[i].setMainTemp(maintemp[i]);
-        }
-     //   weatherData[0].setIcon("10d.png");
-     //   weatherData[1].setIcon("11d.png");
-      //  weatherData[2].setIcon("50n.png");
-        return weatherData;
-    }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
