@@ -55,5 +55,18 @@ public class DataActivity extends Activity{
         text_sunrise  = (TextView) findViewById(R.id.city_sunrise);
         text_sunset = (TextView) findViewById(R.id.city_sunset);
         image_icon  = (ImageView) findViewById(R.id.city_icon);
+
+        text_city.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getCity());
+        text_desc.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWeatherDesc());
+        text_main_temp.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getMainTempString());
+        text_windSpeed.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWindSpeed());
+        text_clouds.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getClouds());
+        text_rain.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getRain3h());
+        text_snow.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getSnow3h());
+        text_sunrise.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getSysSunrise());
+        text_sunset.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getSysSunset());
+        image_icon.setImageBitmap(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getImage());
     }
+
+
 }
