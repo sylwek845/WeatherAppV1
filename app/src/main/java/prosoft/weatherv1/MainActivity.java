@@ -1,6 +1,7 @@
 package prosoft.weatherv1;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -55,14 +56,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * Draw marker on the map
+     * @param weatherData single weatherData object with data (cannot be null)
+     * @return return complete marker
+     */
     private MarkerOptions DrawMarker(WeatherData weatherData)
     {
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        Bitmap bmp = Bitmap.createBitmap(200, 100, conf);
-        Canvas canvas1 = new Canvas(bmp);
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888; // set bitmap conf
+        Bitmap bmp = Bitmap.createBitmap(200, 100, conf); // create bitmap
+        Canvas canvas1 = new Canvas(bmp); // Create new Canvas
 
-    // paint defines the text paintCity,
-    // stroke width, size
+        // defines the text
         Paint paintCity = new Paint();
         Paint paintTemp = new Paint();
         paintTemp.setTextSize(30);
@@ -73,29 +78,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         paintCity.setStrokeJoin(Paint.Join.BEVEL);
         paintCity.setStrokeMiter(50);
         paintCity.setColor(Color.WHITE);
-        Matrix matrixImage = new Matrix();
+        Matrix matrixImage = new Matrix(); //use to scale and set position of image on the bit map
         matrixImage.setScale((float)1.5,(float)1.5);
         matrixImage.postTranslate(55,30);
-        LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon());
-    //modify canvas
-
-        //canvas1.drawRect(0, 0, 100, 100, paintCity);
-      //  canvas1.drawRect(3, 3, 97, 97, colorwhite);
-        Bitmap bitmap =weatherData.getImage();
-        canvas1.drawBitmap(weatherData.getImage(), matrixImage, paintCity);
-        canvas1.drawText(weatherData.getCity(), 5, 25, paintCity);
-        canvas1.drawText(((int)weatherData.getMainTemp() + "°C"), 5, 65, paintTemp);
+        LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon()); //create new lat long temporary var with location
+        canvas1.drawBitmap(weatherData.getImage(), matrixImage, paintCity); //draw image
+        canvas1.drawText(weatherData.getCity(), 5, 25, paintCity); // draw text (city name)
+        canvas1.drawText(((int)weatherData.getMainTemp() + "°C"), 5, 65, paintTemp); //draw text (city temp)
 
 
-    //add marker to Map
+        //add marker
         MarkerOptions marker = new MarkerOptions().position(tmp)
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                         // Specifies the anchor to be at a particular point in the marker image.
                 .anchor(0.5f, 1);
-
-
-
-
 
         return marker;
     }
@@ -104,10 +100,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ProgressDialog progress = new ProgressDialog(MainActivity.this);
         GoogleMap googleMap;
         protected String doInBackground(GoogleMap... maps) {
-            for (int i = 0; i < weatherDatas.length; i++) {
+            for (int i = 0; i < weatherDatas.length; i++) { //for every data
                 try {
-                    googleMap = maps[0];
-                    Parser parser = new Parser();
+                    googleMap = maps[0]; // set map object to hold
+                    Parser parser = new Parser(); // new parser instance
                     weatherDatas[i] = parser.ParseWeather(parser.GetSource(parser.CreateLatLongURL(String.valueOf(weatherDatas[i].getCoordLat()),String.valueOf(weatherDatas[i].getCoordLon()))),weatherDatas[i]); //get city Lat,get city Lon -> create URL -> Get Data -> Parse Data -> replace old with new object
                     Bitmap tmp =parser.GetImage(weatherDatas[i]); // get icon
                     if(tmp == null)
@@ -117,25 +113,27 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     else
                             weatherDatas[i].setImage(tmp);
 
-                publishProgress(i);
-                    SystemClock.sleep(200);
+                    publishProgress(i);//update progress
+                    SystemClock.sleep(200); // sleep
                 }
                 catch (Exception e){}
             }
             return "";
         }
+
         protected void onProgressUpdate(Integer... values) {
             progress.setProgress(values[0]);
         }
         protected void onPostExecute(String results) {
+            //when Task Complete
             try {
                 if (progress.isShowing()) {
                     // To dismiss the dialog
                     progress.dismiss();
 
                 }
-                AddMapAndMarkers(googleMap);
-                //when Task Complete
+                AddMapAndMarkers(googleMap); //call method to add markers to map
+
             } catch (Exception e) {
             }
         }
@@ -164,23 +162,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        getLatLonFromGoogle();
-        googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        new LoadingTask().execute(googleMap);
-
-
-
+        getLatLonFromGoogle(); // get positions
+        googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE); //change type of map for satellite
+        new LoadingTask().execute(googleMap); // get Data
     }
+
+    /**
+     * Gets Lat-Long Position from google servers based on city name
+     */
     private void getLatLonFromGoogle()
     {
-        weatherDatas = new WeatherData[Name.length];
-        for(int i = 0; i < Name.length;i++) {
+        weatherDatas = new WeatherData[Name.length]; //get name of the city using Name array
+        for(int i = 0; i < Name.length;i++) { // for each name
             try {
-                weatherDatas[i] = new WeatherData();
-                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-                List<Address> addresses;
+                weatherDatas[i] = new WeatherData(); //create new weatherData object
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault()); //get local cities (e.g for glasgow it will get Glasgow lat long from local UK position, not for example US glasgow)
+                List<Address> addresses; //list of addresses
                 addresses = geocoder.getFromLocationName(Name[i], 1);
-                if (addresses.size() > 0) {
+                if (addresses.size() > 0) { //only first one if any exist
                     weatherDatas[i].setCoordLat(addresses.get(0).getLatitude());
                     weatherDatas[i].setCoordLon(addresses.get(0).getLongitude());
                     weatherDatas[i].setCity(Name[i]);
@@ -192,43 +191,41 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private void AddMapAndMarkers(GoogleMap googleMap)
     {
         mMap = googleMap;
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-       // mMap.getUiSettings().setScrollGesturesEnabled(false);
-        mMap.getUiSettings().setRotateGesturesEnabled(false);
+        mMap.getUiSettings().setMapToolbarEnabled(false);//disable map tools
+       // mMap.getUiSettings().setScrollGesturesEnabled(false); // disable moving of the map
+        mMap.getUiSettings().setRotateGesturesEnabled(false);//disable gestures - rotation of map (using fingers)
+        mMap.setOnMarkerClickListener(this); //set on marker click listener
+        Markers = new Marker[weatherDatas.length]; // create new marker array
 
-        mMap.setOnMarkerClickListener(this);
-        Markers = new Marker[weatherDatas.length];
-
-        for(int i =0;i<Markers.length;i++)
+        for(int i =0;i<Markers.length;i++) //for each marker
         {
-
-            LatLng tmp = new LatLng(weatherDatas[i].getCoordLat(),weatherDatas[i].getCoordLon());
-            // mMap.addMarker(new MarkerOptions().position(tmp).title("Marker in "+weatherDatas[i].getCity() ));
-            Markers[i] = mMap.addMarker(DrawMarker(weatherDatas[i]));
-            //  mMap.addMarker(DrawMarker(weatherDatas[i]));
-
+           // LatLng tmp = new LatLng(weatherDatas[i].getCoordLat(),weatherDatas[i].getCoordLon()); //create new lat long temporary var with location
+            Markers[i] = mMap.addMarker(DrawMarker(weatherDatas[i])); //add marker to array
         }
-
-
-
         // Add  Scotland and move the camera
-        LatLng scotland = new LatLng(57.27, -3.92);
+        LatLng scotland = new LatLng(57.27, -3.92); //move camera to this location
         mMap.moveCamera(CameraUpdateFactory.newLatLng(scotland));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom((scotland), 6.5f));
     }
-    /**
-     * This is a test method which created city objects with weather
-     * @return Return x number of cities as WeatherData array
-     */
 
+    /**
+     * On Click Marker Handler
+     * @param marker objecy which was clicked
+     * @return
+     */
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        for(int i = 0; i < Markers.length;i++)
+        for(int i = 0; i < Markers.length;i++) // for each marker in markers array
         {
-            if (marker.equals(Markers[i]))
+            if (marker.equals(Markers[i])) // if marker found
             {
-                Toast.makeText(getApplicationContext(), weatherDatas[i].getCity(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), weatherDatas[i].getCity(), Toast.LENGTH_SHORT).show(); //test
+                DataExchanger.setWeatherDatas(weatherDatas); //set data in dataexchange class
+                DataExchanger.setElement(i);//set which element was clicked
+                Intent intent = new Intent(MainActivity.this,
+                        ListActivity.class);
+                startActivity(intent);
             }
         }
         return true;
