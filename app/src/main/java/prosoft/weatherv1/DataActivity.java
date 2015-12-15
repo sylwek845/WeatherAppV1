@@ -38,12 +38,22 @@ public class DataActivity extends Activity{
     private TextView text_snow;
     private TextView text_sunrise;
     private TextView text_sunset;
-    private TextView text_;
     private ImageView image_icon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.city_data);
+
+        text_city =  (TextView) findViewById(R.id.city_name);
+        text_desc = (TextView) findViewById(R.id.city_desc);
+        text_main_temp = (TextView) findViewById(R.id.city_temp);
+        text_windSpeed  = (TextView) findViewById(R.id.city_wind);
+        text_clouds = (TextView) findViewById(R.id.city_clouds);
+        text_rain = (TextView) findViewById(R.id.city_rain);
+        text_snow  = (TextView) findViewById(R.id.city_snow);
+        text_sunrise  = (TextView) findViewById(R.id.city_sunrise);
+        text_sunset = (TextView) findViewById(R.id.city_sunset);
+        image_icon  = (ImageView) findViewById(R.id.city_icon);
     }
 }

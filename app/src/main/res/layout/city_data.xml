@@ -14,43 +14,43 @@
         android:src="@drawable/a10d" />
 
     <TextView
-        android:id="@+id/text_city"
+        android:id="@+id/city_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Glasgow"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_below="@+id/city_icon"
-         />
+        android:gravity="center_vertical|center|center_horizontal" />
 
     <TextView
-        android:id="@+id/city_desc"
+        android:id="@+id/city_wind"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/city_snow"
-        android:text="desc"
+        android:text="wind"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/city_main"
+        android:id="@+id/city_temp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/city_desc"
-        android:text="main"
+        android:layout_below="@+id/city_wind"
+        android:text="temp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/city_snow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/text_city"
+        android:layout_below="@+id/city_name"
         android:text="snow"
         android:textAppearance="?android:attr/textAppearanceMedium"></TextView>
     <TextView
         android:id="@+id/city_rain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/city_main"
-        android:text="............."
+        android:layout_below="@+id/city_temp"
+        android:text="rain"
         android:textAppearance="?android:attr/textAppearanceMedium"
         />
     <TextView
@@ -62,11 +62,27 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         />
     <TextView
-        android:id="@+id/more_time"
+        android:id="@+id/city_sunrise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/city_clouds"
-        android:text="Time:"
+        android:text="sunrise"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+    <TextView
+        android:id="@+id/city_sunset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/city_sunrise"
+        android:text="Sunset"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+    <TextView
+        android:id="@+id/city_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/city_sunset"
+        android:text="desc"
         android:textAppearance="?android:attr/textAppearanceMedium"
         />
 
