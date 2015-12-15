@@ -224,7 +224,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 DataExchanger.setWeatherDatas(weatherDatas); //set data in dataexchange class
                 DataExchanger.setElement(i);//set which element was clicked
                 Intent intent = new Intent(MainActivity.this,
-                        DataActivity.class);
+                        ListActivity.class);
                 startActivity(intent);
             }
         }

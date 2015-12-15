@@ -93,10 +93,6 @@ public class WeatherData {
     public double getMainTemp() {
         return mainTemp;
     }
-    public String getMainTempString()
-    {
-        return String.valueOf(Math.round(mainTemp));
-    }
 
     public void setMainTemp(double mainTemp) {
         this.mainTemp = mainTemp;
