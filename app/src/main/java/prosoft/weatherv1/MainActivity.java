@@ -172,8 +172,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -211,7 +210,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
     /**
-     * Gets Lat-Long Position from google servers based on city name
+     * Gets Lat-Long Position from google servers based on city name and insert data into DB
      */
     private void getLatLonFromGoogle(String weatherData)
     {
@@ -239,9 +238,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             List<WeatherData> weather = mydb.getAllWeather();
 
             weatherDatas = new WeatherData[weather.size()];
-           for(int i = 0; i < weather.size();i++)
+           for(int i = 0; i < weather.size();i++) //for each object
            {
-               weatherDatas[i] = weather.get(i);
+               weatherDatas[i] = weather.get(i);//change Datatype
            }
         }
         catch (Exception e){

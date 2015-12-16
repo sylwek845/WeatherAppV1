@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * Created by Sylwester Zalewski on 15/12/2015.
+ * This class displays list of cities
  */
 public class ListActivity extends Activity {
 

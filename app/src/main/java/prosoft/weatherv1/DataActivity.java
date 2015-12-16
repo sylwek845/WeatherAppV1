@@ -78,18 +78,19 @@ public class DataActivity extends AppCompatActivity {
         text_sunrise  = (TextView) findViewById(R.id.city_sunrise);
         text_sunset = (TextView) findViewById(R.id.city_sunset);
         image_icon  = (ImageView) findViewById(R.id.city_icon);
-        mydb = new DB(this);
+        mydb = new DB(this); // create new instance of DB
         celsius = DataExchanger.isCelsius();
         mph = DataExchanger.isMph();
-        addValues();
+        addValues(); // call add Vales
 
     }
 
     public void addValues()
     {
         if(celsius)
-            text_main_temp.setText("Temperature: " +DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getMainTempString()+ "°C");
+            text_main_temp.setText("Temperature: " +DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getMainTempString()+ "°C"); // set temperature
         else {
+            //convert to F and set
             double temp = DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getMainTemp();
             temp = temp * 9/5 + 32;
             text_main_temp.setText("Temperature: " + String.valueOf(Math.round(temp)) + "°F");
@@ -100,8 +101,9 @@ public class DataActivity extends AppCompatActivity {
         text_windSpeed.setText("Wind: " + DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWindSpeed()+ " mph");
         else
         {
+            //convert to kph and set
             double wind = Double.parseDouble(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWindSpeed());
-            wind = Math.round(wind * 1.609344);
+            wind = Math.round(wind * 1.609344);//
             text_windSpeed.setText("Wind: " + String.valueOf(wind) + " kph");
         }
         text_clouds.setText("Clouds: " +DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getClouds()+ "%");
@@ -124,6 +126,9 @@ public class DataActivity extends AppCompatActivity {
         catch (Exception e){
             text_snow.setText("Snow: N/A");
         }
+        /**
+         * This converts Unix time To UTC
+         */
         long unixTimestamp =Long.parseLong(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getSysSunrise());
         long javaTimestamp = unixTimestamp * 1000L;
         Date date = new Date(javaTimestamp);
@@ -132,15 +137,16 @@ public class DataActivity extends AppCompatActivity {
         javaTimestamp = unixTimestamp * 1000L;
         date = new Date(javaTimestamp);
         String sunset = new SimpleDateFormat("hh:mm").format(date);
-        text_sunrise.setText("Sunrise: " +sunrise);
-        text_sunset.setText("Sunset: "+sunset);
+        text_sunrise.setText("Sunrise: " +sunrise); // set sunrise
+        text_sunset.setText("Sunset: "+sunset);//set sunset
+        //set Image
         image_icon.setImageBitmap(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getImage());
     }
     private void getLatLonFromGoogleAddDB(String weatherData)
     {
 
         try{
-            WeatherData weatherDataTemp = new WeatherData();
+            WeatherData weatherDataTemp = new WeatherData(); //create Temp object
             Geocoder geocoder = new Geocoder(this, Locale.getDefault()); //get local cities (e.g for glasgow it will get Glasgow lat long from local UK position, not for example US glasgow)
             List<Address> addresses; //list of addresses
             addresses = geocoder.getFromLocationName(weatherData, 1);
@@ -148,7 +154,7 @@ public class DataActivity extends AppCompatActivity {
                 weatherDataTemp.setCoordLat(addresses.get(0).getLatitude());
                 weatherDataTemp.setCoordLon(addresses.get(0).getLongitude());
                 weatherDataTemp.setCity(weatherData);
-                mydb.addWeather(weatherDataTemp);
+                mydb.addWeather(weatherDataTemp);// add to database
             }
         }
         catch (Exception e) {}
