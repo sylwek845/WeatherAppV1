@@ -1,17 +1,26 @@
 package prosoft.weatherv1;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Sylwester Zalewski on 15/12/2015.
@@ -49,6 +58,7 @@ public class DataActivity extends AppCompatActivity {
     private ImageView image_icon;
     private boolean celsius = true;
     private boolean mph =true;
+    private DB mydb;
 
 
     @Override
@@ -68,8 +78,9 @@ public class DataActivity extends AppCompatActivity {
         text_sunrise  = (TextView) findViewById(R.id.city_sunrise);
         text_sunset = (TextView) findViewById(R.id.city_sunset);
         image_icon  = (ImageView) findViewById(R.id.city_icon);
-
-
+        mydb = new DB(this);
+        celsius = DataExchanger.isCelsius();
+        mph = DataExchanger.isMph();
         addValues();
 
     }
@@ -81,16 +92,16 @@ public class DataActivity extends AppCompatActivity {
         else {
             double temp = DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getMainTemp();
             temp = temp * 9/5 + 32;
-            text_main_temp.setText("Temperature: " + String.valueOf(temp) + "°F");
+            text_main_temp.setText("Temperature: " + String.valueOf(Math.round(temp)) + "°F");
         }
         text_city.setText(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getCity());
-        text_desc.setText("Weather Description: " +DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWeatherDesc());
+        text_desc.setText("Weather Description: " + DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWeatherDesc());
         if(mph)
         text_windSpeed.setText("Wind: " + DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWindSpeed()+ " mph");
         else
         {
             double wind = Double.parseDouble(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getWindSpeed());
-            wind = wind * 1.609344;
+            wind = Math.round(wind * 1.609344);
             text_windSpeed.setText("Wind: " + String.valueOf(wind) + " kph");
         }
         text_clouds.setText("Clouds: " +DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getClouds()+ "%");
@@ -125,6 +136,24 @@ public class DataActivity extends AppCompatActivity {
         text_sunset.setText("Sunset: "+sunset);
         image_icon.setImageBitmap(DataExchanger.getWeatherDatas()[DataExchanger.getElement()].getImage());
     }
+    private void getLatLonFromGoogleAddDB(String weatherData)
+    {
+
+        try{
+            WeatherData weatherDataTemp = new WeatherData();
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault()); //get local cities (e.g for glasgow it will get Glasgow lat long from local UK position, not for example US glasgow)
+            List<Address> addresses; //list of addresses
+            addresses = geocoder.getFromLocationName(weatherData, 1);
+            if (addresses.size() > 0) { //only first one if any exist
+                weatherDataTemp.setCoordLat(addresses.get(0).getLatitude());
+                weatherDataTemp.setCoordLon(addresses.get(0).getLongitude());
+                weatherDataTemp.setCity(weatherData);
+                mydb.addWeather(weatherDataTemp);
+            }
+        }
+        catch (Exception e) {}
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -152,7 +181,55 @@ public class DataActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
-
+        else if (id == R.id.action_add) {
+           InputDialog();
+            return true;
+        }
+        else if (id == R.id.action_setting) {
+            Intent intent = new Intent(DataActivity.this,
+                    SettingActivity.class);
+            startActivity(intent);
+            return true;
+        }
+//        else if (id == R.id.action_del) {
+//            WeatherData weatherData = DataExchanger.getWeatherDatas()[DataExchanger.getElement()];
+//            mydb.deleteWeater(weatherData);
+//            Toast.makeText(getApplicationContext(), "Deleted ;)", Toast.LENGTH_SHORT).show(); //inform user
+//            return true;
+       // }
         return super.onOptionsItemSelected(item);
+    }
+    public void InputDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter City Name");
+        builder.setMessage("App needs to be restarted before any changes appear. Sorry ;(");
+
+// Set up the input
+        final EditText input = new EditText(this);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT );
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                String city = input.getText().toString();
+                if (!city.isEmpty()) {
+                    getLatLonFromGoogleAddDB(city);
+                    Toast.makeText(getApplicationContext(), "City Added to Database", Toast.LENGTH_SHORT).show(); //test
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 }

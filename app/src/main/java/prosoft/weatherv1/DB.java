@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Sylwester Zalewski on 10/12/2015.
@@ -21,6 +22,7 @@ public class DB extends SQLiteOpenHelper {
     public static final String LAT_NAME = "lat";
     public static final String LONG_NAME = "lon";
     public static final String NAME = "name";
+    public static final String TABLE_WEATHER = "weathers";
     private HashMap hp;
 
     public DB(Context context)
@@ -32,18 +34,22 @@ public class DB extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
         db.execSQL(
-                "create table weathers " +
-                        "(id integer primary key, name text,lon text,lat text)"
+                "create table " + TABLE_WEATHER +
+                        "(id integer primary key, name text,lon text,lat text);"
         );
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO Auto-generated method stub
-        db.execSQL("DROP TABLE IF EXISTS weather");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WEATHER);
         onCreate(db);
     }
-
+    public void dropDB()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WEATHER);
+    }
     public boolean insertdata  (String name, String lon, String lat)
     {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -51,13 +57,27 @@ public class DB extends SQLiteOpenHelper {
         contentValues.put("name", name);
         contentValues.put("lon", lon);
         contentValues.put("lat", lat);
-        db.insert("weathers", null, contentValues);
+        db.insert(TABLE_WEATHER, null, contentValues);
         return true;
     }
+    public WeatherData getweather(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        Cursor cursor = db.query(TABLE_WEATHER, new String[]{"id",
+                        NAME, LONG_NAME, LONG_NAME}, "id" + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        WeatherData weatherData = new WeatherData();
+        weatherData.setCity(cursor.getString(0));
+        weatherData.setCoordLon(Double.parseDouble(cursor.getString(1)));
+        weatherData.setCoordLon(Double.parseDouble(cursor.getString(2)));
+        return weatherData;
+    }
     public Cursor getData(int id){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from weathers where id="+id+"", null );
+        Cursor res =  db.rawQuery("select * from weathers where id=" + id + "", null);
         return res;
     }
 
@@ -66,7 +86,18 @@ public class DB extends SQLiteOpenHelper {
         int numRows = (int) DatabaseUtils.queryNumEntries(db, "weathers");
         return numRows;
     }
+    void addWeather(WeatherData weatherData) {
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        ContentValues values = new ContentValues();
+        values.put(NAME, weatherData.getCity()); // Name
+        values.put(LONG_NAME, weatherData.getCoordLon()); // LON
+        values.put(LAT_NAME, weatherData.getCoordLat()); // LON
+
+        // Inserting Row
+        db.insert(TABLE_WEATHER, null, values);
+        db.close(); // Closing database connection
+    }
     public boolean updatedata (Integer id, String name, String lon, String lat)
     {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -74,31 +105,46 @@ public class DB extends SQLiteOpenHelper {
         contentValues.put("name", name);
         contentValues.put("lon", lon);
         contentValues.put("lat", lat);
-        db.update("weathers", contentValues, "id = ? ", new String[] { Integer.toString(id) } );
+        db.update("weathers", contentValues, "id = ? ", new String[]{Integer.toString(id)});
         return true;
     }
 
-    public Integer deleteCdata (Integer id)
+    public Integer deleteWdata (Integer id)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete("weathers",
                 "id = ? ",
                 new String[] { Integer.toString(id) });
     }
-    public ArrayList<String> getAllCotacts()
-    {
-        ArrayList<String> array_list = new ArrayList<String>();
+    public void deleteWeater(WeatherData weatherData) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_WEATHER, "id" + " = ?",
+                new String[] { String.valueOf(weatherData.getID()) });
+        db.close();
+    }
+    // Getting All Weather Datas
+    public List<WeatherData> getAllWeather() {
+        List<WeatherData> weatherList = new ArrayList<WeatherData>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_WEATHER;
 
-        //hp = new HashMap();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from contacts", null );
-        res.moveToFirst();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
 
-        while(res.isAfterLast() == false){
-            array_list.add(res.getString(res.getColumnIndex("weathers")));
-            res.moveToNext();
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                WeatherData weatherData = new WeatherData();
+                weatherData.setID(cursor.getString(0));
+                weatherData.setCity(cursor.getString(1));
+                weatherData.setCoordLon(Double.parseDouble(cursor.getString(2)));
+                weatherData.setCoordLat(Double.parseDouble(cursor.getString(3)));
+                weatherList.add(weatherData);
+            } while (cursor.moveToNext());
         }
-        return array_list;
+
+        // return contact list
+        return weatherList;
     }
 
 }

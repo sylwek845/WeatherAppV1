@@ -70,8 +70,13 @@ public class ListActivity extends Activity {
             TextView main = (TextView) Itemview.findViewById(R.id.item_Main);
             main.setText(String.valueOf(data.getWeatherMain()));
             TextView temp = (TextView) Itemview.findViewById(R.id.item_Temp);
-            temp.setText(String.valueOf(data.getMainTemp()));
-
+            if(DataExchanger.isCelsius())
+                temp.setText(String.valueOf(data.getMainTempString()));
+            else {
+                double dtemp = data.getMainTemp();
+                dtemp = dtemp * 9 / 5 + 32;
+                temp.setText(String.valueOf(Math.round(dtemp)) + "°F");
+            }
             return Itemview;
         }
 

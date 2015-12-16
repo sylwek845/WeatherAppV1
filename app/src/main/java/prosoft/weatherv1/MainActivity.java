@@ -2,6 +2,7 @@ package prosoft.weatherv1;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,6 +53,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LoadPrefs();
         mydb = new DB(this);
         setContentView(R.layout.activity_main);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -59,7 +62,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
     }
-
+    private void LoadPrefs()
+    {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        DataExchanger.setCelsius(SP.getBoolean("celsius",false));
+        DataExchanger.setMph(SP.getBoolean("mph",false));
+    }
     /**
      * Draw marker on the map
      * @param weatherData single weatherData object with data (cannot be null)
@@ -83,12 +91,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         paintCity.setStrokeMiter(50);
         paintCity.setColor(Color.WHITE);
         Matrix matrixImage = new Matrix(); //use to scale and set position of image on the bit map
-        matrixImage.setScale((float)1.5,(float)1.5);
-        matrixImage.postTranslate(65,30);
+        matrixImage.setScale((float) 1.5, (float) 1.5);
+        matrixImage.postTranslate(65, 30);
         LatLng tmp = new LatLng(weatherData.getCoordLat(),weatherData.getCoordLon()); //create new lat long temporary var with location
         canvas1.drawBitmap(weatherData.getImage(), matrixImage, paintCity); //draw image
         canvas1.drawText(weatherData.getCity(), 5, 25, paintCity); // draw text (city name)
-        canvas1.drawText(((int)weatherData.getMainTemp() + "°C"), 5, 75, paintTemp); //draw text (city temp)
+        if(DataExchanger.isCelsius())
+            canvas1.drawText((weatherData.getMainTempString() + "°C"), 5, 75, paintTemp); //draw text (city temp)
+        else {
+            double temp = weatherData.getMainTemp();
+            temp = temp * 9 / 5 + 32;
+            canvas1.drawText((String.valueOf(Math.round(temp)) + "°F"), 5, 75, paintTemp); //draw text (city temp)
+
+        }
 
 
         //add marker
@@ -165,10 +180,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        for(int i = 0;i < Name.length;i++)
-        {
-            getLatLonFromGoogle(Name[i]); // get positions
-        }
+
+
 
         LoadFromDB();
         googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE); //change type of map for satellite
@@ -202,12 +215,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      */
     private void getLatLonFromGoogle(String weatherData)
     {
+
                 try{
+                    WeatherData weatherDataTemp = new WeatherData();
                 Geocoder geocoder = new Geocoder(this, Locale.getDefault()); //get local cities (e.g for glasgow it will get Glasgow lat long from local UK position, not for example US glasgow)
                 List<Address> addresses; //list of addresses
                 addresses = geocoder.getFromLocationName(weatherData, 1);
                 if (addresses.size() > 0) { //only first one if any exist
-                    mydb.insertdata(weatherData,String.valueOf(addresses.get(0).getLongitude()),String.valueOf(addresses.get(0).getLatitude()));
+                    weatherDataTemp.setCoordLat(addresses.get(0).getLatitude());
+                    weatherDataTemp.setCoordLon(addresses.get(0).getLongitude());
+                    weatherDataTemp.setCity(weatherData);
+                    mydb.addWeather(weatherDataTemp);
                 }
             }
             catch (Exception e) {}
@@ -215,21 +233,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void LoadFromDB()
     {
-        try {
+        try {//
 
-          //  int Value = extras.getInt("id");
-            for (int i = 0; i < mydb.numberOfRows(); i++) {
+            Log.d("Reading: ", "Reading the weather..");
+            List<WeatherData> weather = mydb.getAllWeather();
 
-                Cursor rs = mydb.getData(1);
-                ArrayList<String> array_list = mydb.getAllCotacts();
-                weatherDatas[i] = new WeatherData();
-                weatherDatas[i].setCoordLat(Double.parseDouble(rs.getString(rs.getColumnIndex(DB.LAT_NAME))));
-                weatherDatas[i].setCoordLon(Double.parseDouble(rs.getString(rs.getColumnIndex(DB.LONG_NAME))));
-                weatherDatas[i].setCity(rs.getString(rs.getColumnIndex(DB.NAME)));
-                if (!rs.isClosed()) {
-                    rs.close();
-                }
-            }
+            weatherDatas = new WeatherData[weather.size()];
+           for(int i = 0; i < weather.size();i++)
+           {
+               weatherDatas[i] = weather.get(i);
+           }
         }
         catch (Exception e){
             Log.i("DB","null");

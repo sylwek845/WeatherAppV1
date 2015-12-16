@@ -22,4 +22,5 @@
         android:orderInCategory="100"
         android:title="Add City"
         app:showAsAction="never" />
+
 </menu>

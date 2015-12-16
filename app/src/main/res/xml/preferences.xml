@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="celsius"
+        android:title="Celsius"
+        android:summary="By Checking this box all temperature will appear in Celsius"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="mph"
+        android:title="Mph"
+        android:summary="By Checking this box all wind speed will appear in Mph"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

@@ -8,7 +8,7 @@ package prosoft.weatherv1;
  */
 public class DataExchanger {
 
-    public static WeatherData[] weatherDatas = null;
+    private static WeatherData[] weatherDatas = null;
 
     /**
      * Get Element position
@@ -26,7 +26,26 @@ public class DataExchanger {
         DataExchanger.element = element;
     }
 
-    public static int element = -999;
+    private static int element = -999;
+
+    public static boolean isCelsius() {
+        return Celsius;
+    }
+
+    public static void setCelsius(boolean celsius) {
+        Celsius = celsius;
+    }
+
+    public static boolean isMph() {
+        return mph;
+    }
+
+    public static void setMph(boolean mph) {
+        DataExchanger.mph = mph;
+    }
+
+    private static boolean Celsius = true;
+    private static boolean mph = true;
 
 
     /**
