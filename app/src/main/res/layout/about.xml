@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/city_icon"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:paddingTop="3dp"
+        android:adjustViewBounds="true"
+        android:maxHeight="100dp"
+        android:src="@drawable/gcu" />
+
+
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="30dp"
+        android:text="@string/developed"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/city_icon"
+        android:gravity="center_vertical|center|center_horizontal"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="30dp"
+        android:text="Hope you enjoy the application, if you have any suggestions feel free to contact me ;)"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/name"
+        android:gravity="center_vertical|center|center_horizontal"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/android_icon"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:paddingTop="20dp"
+        android:layout_below="@+id/contact"
+        android:adjustViewBounds="true"
+        android:maxHeight="100dp"
+        android:src="@drawable/androidlogo1" />
+    <ImageView
+        android:id="@+id/OWM_icon"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:paddingTop="20dp"
+        android:layout_below="@+id/android_icon"
+        android:adjustViewBounds="true"
+        android:maxHeight="100dp"
+        android:src="@drawable/owm" />
+
+</RelativeLayout>

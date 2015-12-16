@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">WeatherV1</string>
     <string name="title_activity_main">Scottish Weather</string>
+    <string name="developed">Developed by Sylwester Zalewski</string>
 </resources>

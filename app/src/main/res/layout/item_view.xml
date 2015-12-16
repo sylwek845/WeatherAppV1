@@ -26,9 +26,9 @@ Glasgow Caledonian University
         android:layout_alignParentTop="true"
         android:layout_marginLeft="80dp"
         android:text="Glasgow"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_centerHorizontal="true"
-        android:gravity="right" />
+        android:gravity="right"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/item_Main"
