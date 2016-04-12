@@ -2,6 +2,7 @@ package prosoft.weatherv1;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -78,13 +80,17 @@ public class DataActivity extends AppCompatActivity {
         text_sunrise  = (TextView) findViewById(R.id.city_sunrise);
         text_sunset = (TextView) findViewById(R.id.city_sunset);
         image_icon  = (ImageView) findViewById(R.id.city_icon);
+
         mydb = new DB(this); // create new instance of DB
         celsius = DataExchanger.isCelsius();
         mph = DataExchanger.isMph();
         addValues(); // call add Vales
 
     }
-
+    private static boolean databaseExist(Context context, String dbName) {
+        File dbFile = context.getDatabasePath(dbName);
+        return dbFile.exists();
+    }
     public void addValues()
     {
         if(celsius)

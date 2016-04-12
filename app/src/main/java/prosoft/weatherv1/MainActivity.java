@@ -1,6 +1,7 @@
 package prosoft.weatherv1;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -49,7 +51,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private WeatherData[] weatherDatas;
     private DB mydb ;
     Bundle extras;
-    private String[] Name = {"Glasgow", "Aberdeen", "Edinburgh","Perth"};//,"Elgin","Fort William","Oban","Wick","Tongue"};
+    private String[] Name = {"Glasgow"};//,"Elgin","Fort William","Oban","Wick","Tongue"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,24 +121,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ProgressDialog progress = new ProgressDialog(MainActivity.this);
         GoogleMap googleMap;
         protected String doInBackground(GoogleMap... maps) {
-            for (int i = 0; i < weatherDatas.length; i++) { //for every data
-                try {
-                    googleMap = maps[0]; // set map object to hold
-                    Parser parser = new Parser(); // new parser instance
-                    weatherDatas[i] = parser.ParseWeather(parser.GetSource(parser.CreateLatLongURL(String.valueOf(weatherDatas[i].getCoordLat()),String.valueOf(weatherDatas[i].getCoordLon()))),weatherDatas[i]); //get city Lat,get city Lon -> create URL -> Get Data -> Parse Data -> replace old with new object
-                    Bitmap tmp =parser.GetImage(weatherDatas[i]); // get icon
-                    if(tmp == null)
-                    {
-                        Log.e("Bitmap Empty","Downloaded Bitmap is empty");
-                    }
-                    else
+
+                for (int i = 0; i < weatherDatas.length; i++) { //for every data
+                    try {
+                        googleMap = maps[0]; // set map object to hold
+                        Parser parser = new Parser(); // new parser instance
+                        weatherDatas[i] = parser.ParseWeather(parser.GetSource(parser.CreateLatLongURL(String.valueOf(weatherDatas[i].getCoordLat()), String.valueOf(weatherDatas[i].getCoordLon()))), weatherDatas[i]); //get city Lat,get city Lon -> create URL -> Get Data -> Parse Data -> replace old with new object
+                        Bitmap tmp = parser.GetImage(weatherDatas[i]); // get icon
+                        if (tmp == null) {
+                            Log.e("Bitmap Empty", "Downloaded Bitmap is empty");
+                        } else
                             weatherDatas[i].setImage(tmp);
 
-                    publishProgress(i);//update progress
-                    SystemClock.sleep(200); // sleep
+                        publishProgress(i);//update progress
+                        SystemClock.sleep(200); // sleep
+                    } catch (Exception e) {
+                    }
                 }
-                catch (Exception e){}
-            }
+
+
             return "";
         }
 
@@ -181,12 +184,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
 
+        if(databaseExist(this,"WeatherDB.db"))
+            getLatLonFromGoogle("Glasgow");
 
         LoadFromDB();
         googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE); //change type of map for satellite
         new LoadingTask().execute(googleMap); // get Data
     }
-
+    private static boolean databaseExist(Context context, String dbName) {
+        File dbFile = context.getDatabasePath(dbName);
+        return dbFile.exists();
+    }
     /**
      * Gets Lat-Long Position from google servers based on city name
      */
